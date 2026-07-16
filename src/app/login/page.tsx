@@ -50,13 +50,21 @@ export default function LoginPage() {
 
     try {
       if (isReset) {
-        // Password Reset Flow
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/settings`,
-        });
-        if (error) throw error;
-        toast.info("Reset link sent! Please check your email.");
-        setIsReset(false);
+        // --- FIXED: Execute the call directly instead of defining a function ---
+        // Inside handleAuth where isReset is true
+        const { error } = await supabase.auth.resetPasswordForEmail(
+          email.trim(),
+          {
+            redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+          }
+        );
+
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("New link sent! Please click it only once.");
+          setIsReset(false);
+        }
       } else if (isSignUp) {
         // Sign Up Flow
         const { error } = await supabase.auth.signUp({
